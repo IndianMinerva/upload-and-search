@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.annotation.PreDestroy;
 @Slf4j
 @SpringBootApplication
 @EnableSwagger2
@@ -23,11 +21,5 @@ public class DocumentProcessorApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DocumentProcessorApplication.class, args);
-	}
-
-	@PreDestroy
-	public void onExit() {
-		documentRepository.deleteAll();
-		log.info("Great!");
 	}
 }
