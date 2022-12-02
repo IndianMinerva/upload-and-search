@@ -6,4 +6,3 @@ execute `sh run.sh` and then the application could be accessed from the swagger-
 
 ## N.B.
 ### Need to write a lot of test cases.
-### Since I did not know the XML part, I did not do the XPATH AT ALL. However, I did include RepositoryPopulator in the config directory :-)
