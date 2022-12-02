@@ -2,6 +2,7 @@ package com.app.document.config;
 
 import com.app.document.entity.DocumentEntity;
 import com.app.document.repositories.DocumentRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+@Slf4j
 @Configuration
 public class RepositoryPopulator {
     @Autowired
@@ -16,7 +18,6 @@ public class RepositoryPopulator {
     @Bean
     @Autowired
     public RepositoryPopulator loadData() {
-        System.out.println("Populated");
         documentRepository.insert(new DocumentEntity(null, "newspaper1", 10.1d, 20.1d, 30.1d, "fileName1", new Date(), LocalDateTime.now()));
         documentRepository.insert(new DocumentEntity(null, "newspaper2", 10.2d, 20.2d, 30.1d, "fileName2", new Date(), LocalDateTime.now()));
         documentRepository.insert(new DocumentEntity(null, "newspaper3", 10.3d, 20.3d, 30.1d, "fileName3", new Date(), LocalDateTime.now()));
@@ -30,6 +31,7 @@ public class RepositoryPopulator {
         documentRepository.insert(new DocumentEntity(null, "newspaper11", 10.11d, 20.11d, 30.1d, "fileName11", new Date(), LocalDateTime.now()));
         documentRepository.insert(new DocumentEntity(null, "newspaper12", 10.12d, 20.12d, 30.1d, "fileName12", new Date(), LocalDateTime.now()));
         documentRepository.insert(new DocumentEntity(null, "newspaper13", 10.13d, 20.13d, 30.1d, "fileName13", new Date(), LocalDateTime.now()));
+        log.info("Populated");
         return this;
     }
 }

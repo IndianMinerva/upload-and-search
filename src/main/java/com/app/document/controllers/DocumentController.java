@@ -1,6 +1,5 @@
 package com.app.document.controllers;
 
-import com.app.document.config.RepositoryPopulator;
 import com.app.document.dto.DocumentDto;
 import com.app.document.dto.FileDto;
 import com.app.document.repositories.DocumentRepository;
@@ -27,9 +26,6 @@ public class DocumentController {
 
     @Autowired
     private final DocumentRepository documentRepository;
-
-    @Autowired
-    private final RepositoryPopulator repositoryPopulator;
 
     @PostMapping("/")
     public ResponseEntity<Boolean> uploadFile(@RequestPart("file") MultipartFile file) throws IOException {
