@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,23 +31,38 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     private DocumentRepository documentRepository;
 
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-mm-dd");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public boolean saveDocument(FileDto fileDto) throws Exception {
         String fileName = UUID.randomUUID().toString();
         Path path = Paths.get(fileName);
         Files.write(path, fileDto.getFileContent());
-        if (XMLUtils.validate(path.toFile())) {  //TODO: The below lines should be moved into a private method for the readability
-            JSONObject jsonObject = XML.toJSONObject(new String(fileDto.getFileContent()));
-            JSONObject deviceInfo = jsonObject.getJSONObject("epaperRequest").getJSONObject("deviceInfo");
-            String newspaperName = deviceInfo.getJSONObject("appInfo").getString("newspaperName");
-            double width = deviceInfo.getJSONObject("screenInfo").getDouble("width");
-            double height = deviceInfo.getJSONObject("screenInfo").getDouble("height");
-            double dpi = deviceInfo.getJSONObject("screenInfo").getDouble("dpi");
-            String publicationDate = jsonObject.getJSONObject("epaperRequest").getJSONObject("getPages").getString("publicationDate");
+        if (XMLUtils.validate(path.toFile())) {
+            documentRepository.insert(getDocumentEntityFromFile(fileDto));
+            log.info("Inserted a new document");
+            path.toFile().delete();
+            return true;
+        } else {
+            path.toFile().delete();
+            return false;
+        }
+    }
 
-            DocumentEntity documentEntity = new DocumentEntity(
+    private DocumentEntity getDocumentEntityFromFile(FileDto fileDto) {
+        JSONObject jsonObject = XML.toJSONObject(new String(fileDto.getFileContent()));
+        JSONObject deviceInfo = jsonObject.getJSONObject("epaperRequest").getJSONObject("deviceInfo");
+        String newspaperName = deviceInfo.getJSONObject("appInfo").getString("newspaperName");
+        double width = deviceInfo.getJSONObject("screenInfo").getDouble("width");
+        double height = deviceInfo.getJSONObject("screenInfo").getDouble("height");
+        double dpi = deviceInfo.getJSONObject("screenInfo").getDouble("dpi");
+        String publicationDate = jsonObject
+                .getJSONObject("epaperRequest")
+                .getJSONObject("getPages")
+                .getString("publicationDate");
+
+        try {
+            return new DocumentEntity(
                     null,
                     newspaperName,
                     width,
@@ -56,16 +72,11 @@ public class DocumentServiceImpl implements DocumentService {
                     SIMPLE_DATE_FORMAT.parse(publicationDate),
                     LocalDateTime.now()
             );
-            documentRepository.insert(documentEntity);
-            log.info("Inserted a document");
-            path.toFile().delete();
-            return true;
-        } else {
-            path.toFile().delete();
-            return false;
+        } catch (ParseException pe) {
+            log.error("Exception occurred parsing the date", pe);
+            throw new RuntimeException(pe);
         }
     }
-
     @Override
     public List<DocumentDto> getAllDocuments(int page, int size, Sort.Direction sortDirection, String property) {
         return documentRepository.findAll(PageRequest.of(page, size, Sort.by(sortDirection, property)))

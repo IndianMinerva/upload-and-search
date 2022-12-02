@@ -56,7 +56,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/")
-    public ResponseEntity deleteDocuments() {
+    public ResponseEntity deleteAllDocuments() {
         documentRepository.deleteAll();
         return ResponseEntity.ok().build();
     }
